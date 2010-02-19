@@ -256,6 +256,10 @@ class PaginatorHelper extends AppHelper {
  * @access public
  */
 	function prev($title = '<< Previous', $options = array(), $disabledTitle = null, $disabledOptions = array()) {
+		$_defaults = array(
+			'rel' => 'prev'
+		);
+		$options = array_merge($_defaults, (array)$options);
 		return $this->__pagingLink('Prev', $title, $options, $disabledTitle, $disabledOptions);
 	}
 
@@ -276,6 +280,10 @@ class PaginatorHelper extends AppHelper {
  * @access public
  */
 	function next($title = 'Next >>', $options = array(), $disabledTitle = null, $disabledOptions = array()) {
+		$_defaults = array(
+			'rel' => 'next'
+		);
+		$options = array_merge($_defaults, (array)$options);
 		return $this->__pagingLink('Next', $title, $options, $disabledTitle, $disabledOptions);
 	}
 
