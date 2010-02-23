@@ -1730,6 +1730,7 @@ class Model extends Overloadable {
 							return ($db->commit($this) !== false);
 						} else {
 							$db->rollback($this);
+							return false;
 						}
 					}
 					return $return;
