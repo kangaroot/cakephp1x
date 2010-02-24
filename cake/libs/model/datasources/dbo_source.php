@@ -2295,8 +2295,9 @@ class DboSource extends DataSource {
 /**
  * Returns an ORDER BY clause as a string.
  *
- * @param string $key Field reference, as a key (i.e. Post.title)
- * @param string $direction Direction (ASC or DESC)
+ * @param mixed $keys Order direction as string or array of strings. Direction can be a field or field with order condition
+ *              (e.g. 'Post.title', 'title ASC', array ('title', 'author ASC', ..)
+ * @param string $direction Direction to use if not specified with $key. (e.g.: 'ASC', 'DESC', 'ASC NULLS FIRST (postgres)', ...)
  * @param object $model model reference (used to look for virtual field)
  * @return string ORDER BY clause
  * @access public

@@ -2011,7 +2011,7 @@ class Model extends Overloadable {
  *              neighbors / list / threaded)
  * @param mixed $fields Either a single string of a field name, or an array of field names, or
  *               options for matching
- * @param string $order SQL ORDER BY conditions (e.g. "price DESC" or "name ASC")
+ * @param mixed $order SQL ORDER BY directions (e.g. "price DESC" or "name"), or array with multiple order directions
  * @param integer $recursive The number of levels deep to fetch associated records
  * @return array Array of records
  * @access public
