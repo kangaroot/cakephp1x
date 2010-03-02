@@ -244,6 +244,9 @@ class ShellDispatcher {
 		define('APP_DIR', $this->params['app']);
 		define('APP_PATH', $this->params['working'] . DS);
 		define('WWW_ROOT', APP_PATH . $this->params['webroot'] . DS);
+		if (!is_dir(ROOT . DS . APP_DIR . DS . 'tmp')) {
+			define('TMP', CORE_PATH . 'cake' . DS . 'console' . DS . 'templates' . DS . 'skel' . DS . 'tmp' . DS);
+		}
 
 		$includes = array(
 			CORE_PATH . 'cake' . DS . 'config' . DS . 'paths.php',
@@ -264,10 +267,13 @@ class ShellDispatcher {
 			}
 		}
 
+		Configure::getInstance(file_exists(CONFIGS . 'bootstrap.php'));
+
 		if (!file_exists(APP_PATH . 'config' . DS . 'core.php')) {
 			include_once CORE_PATH . 'cake' . DS . 'console' . DS . 'templates' . DS . 'skel' . DS . 'config' . DS . 'core.php';
+			App::build();
 		}
-		Configure::getInstance(file_exists(CONFIGS . 'bootstrap.php'));
+
 		return true;
 	}
 
@@ -619,14 +625,14 @@ class ShellDispatcher {
 			$columns = max(1, floor($width / 30));
 			$rows = ceil(count($shellList) / $columns);
 
-			foreach($shellList as $shell => $types) {
+			foreach ($shellList as $shell => $types) {
 				sort($types);
 				$shellList[$shell] = str_pad($shell . ' [' . implode ($types, ', ') . ']', $width / $columns);
 			}
 			$out = array_chunk($shellList, $rows);
-			for($i = 0; $i < $rows; $i++) {
+			for ($i = 0; $i < $rows; $i++) {
 				$row = '';
-				for($j = 0; $j < $columns; $j++) {
+				for ($j = 0; $j < $columns; $j++) {
 					if (!isset($out[$j][$i])) {
 						continue;
  					}

@@ -515,6 +515,38 @@ class Controller extends Object {
 	}
 
 /**
+ * Perform the startup process for this controller.
+ * Fire the Component and Controller callbacks in the correct order.
+ *
+ * - Initializes components, which fires their `initialize` callback
+ * - Calls the controller `beforeFilter`.
+ * - triggers Component `startup` methods.
+ *
+ * @return void
+ * @access public
+ */
+	function startupProcess() {
+		$this->Component->initialize($this);
+		$this->beforeFilter();
+		$this->Component->triggerCallback('startup', $this);
+	}
+
+/**
+ * Perform the various shutdown processes for this controller.
+ * Fire the Component and Controller callbacks in the correct order.
+ *
+ * - triggers the component `shutdown` callback.
+ * - calls the Controller's `afterFilter` method.
+ *
+ * @return void
+ * @access public
+ */
+	function shutdownProcess() {
+		$this->Component->triggerCallback('shutdown', $this);
+		$this->afterFilter();
+	}
+
+/**
  * Queries & sets valid HTTP response codes & messages.
  *
  * @param mixed $code If $code is an integer, then the corresponding code/message is
@@ -835,7 +867,7 @@ class Controller extends Object {
 			App::import('View', $this->view);
 		}
 
-		$this->Component->beforeRender($this);
+		$this->Component->triggerCallback('beforeRender', $this);
 
 		$this->params['models'] = $this->modelNames;
 
