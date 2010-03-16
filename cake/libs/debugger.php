@@ -334,7 +334,8 @@ class Debugger extends Object {
 			'args'    => false,
 			'start'   => 0,
 			'scope'   => null,
-			'exclude' => null
+			'exclude' => null,
+			'delimiter' => "\n"
 		);
 		$options += $defaults;
 
@@ -393,7 +394,7 @@ class Debugger extends Object {
 		if ($options['format'] == 'array' || $options['format'] == 'points') {
 			return $back;
 		}
-		return implode("\n", $back);
+		return implode($options['delimiter'], $back);
 	}
 
 /**
