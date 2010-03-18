@@ -238,9 +238,13 @@ class DboSource extends DataSource {
 	function execute($sql, $options = array()) {
 		$defaults = array('stats' => true, 'log' => $this->fullDebug);
 		$options = array_merge($defaults, $options);
-
+		if (Configure::read('debug') > 0) {
+			$tag = ' /* ' . Debugger::trace(array ('scope' => 'APP/models', 'reverse' => true, 'delimiter' => ' -> ')) . '*/';
+		} else {
+			$tag = '';
+		}
 		$t = getMicrotime();
-		$this->_result = $this->_execute($sql);
+		$this->_result = $this->_execute($sql . $tag);
 		if ($options['stats']) {
 			$this->took = round((getMicrotime() - $t) * 1000, 0);
 			$this->affected = $this->lastAffected();
