@@ -532,12 +532,12 @@ class DboSource extends DataSource {
 				return $this->cacheMethod(__FUNCTION__, $cacheKey, $this->startQuote . $data . $this->endQuote);
 			}
 			$items = explode('.', $data);
-			return $this->cacheMethod(__FUNCTION__, $cacheKey, 
+			return $this->cacheMethod(__FUNCTION__, $cacheKey,
 				$this->startQuote . implode($this->endQuote . '.' . $this->startQuote, $items) . $this->endQuote
 			);
 		}
 		if (preg_match('/^[\w-]+\.\*$/', $data)) { // string.*
-			return $this->cacheMethod(__FUNCTION__, $cacheKey, 
+			return $this->cacheMethod(__FUNCTION__, $cacheKey,
 				$this->startQuote . str_replace('.*', $this->endQuote . '.*', $data)
 			);
 		}
@@ -1658,6 +1658,24 @@ class DboSource extends DataSource {
 		} elseif ($conditions === null) {
 			$conditions = $this->conditions($this->defaultConditions($model, $conditions, false), true, true, $model);
 		} else {
+			$noJoin = true;
+			foreach ($conditions as $field => $value) {
+				$originalField = $field;
+				if (strpos($field, '.') !== false) {
+					list($alias, $field) = explode('.', $field);
+					$field = ltrim($field, $this->startQuote);
+					$field = rtrim($field, $this->endQuote);
+				}
+				if (!$model->hasField($field)) {
+					$noJoin = false;
+					break;
+				}
+				$conditions[$field] = $value;
+				unset($conditions[$originalField]);
+			}
+			if ($noJoin === true) {
+				return $this->conditions($conditions);
+			}
 			$idList = $model->find('all', array(
 				'fields' => "{$model->alias}.{$model->primaryKey}",
 				'conditions' => $conditions
@@ -1866,7 +1884,7 @@ class DboSource extends DataSource {
  */
 	function __scrubQueryData($data) {
 		foreach (array('conditions', 'fields', 'joins', 'order', 'limit', 'offset', 'group') as $key) {
-			if (!isset($data[$key]) || empty($data[$key])) {
+			if (empty($data[$key])) {
 				$data[$key] = array();
 			}
 		}
