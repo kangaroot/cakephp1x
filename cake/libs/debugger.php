@@ -350,7 +350,7 @@ class Debugger extends Object {
 			'function' => '[main]'
 		);
 
-		for ($i = $options['start']; $i < $count && $i < $options['depth']; $i++) {
+		for ($i = $options['start']; $i < $count && count($back) < $options['depth']; $i++) {
 			$trace = array_merge(array('file' => '[internal]', 'line' => '??'), $backtrace[$i]);
 
 			if (isset($backtrace[$i + 1])) {
@@ -372,6 +372,9 @@ class Debugger extends Object {
 				$reference = '[main]';
 			}
 			if (in_array($reference, array('call_user_func_array', 'trigger_error'))) {
+				continue;
+			}
+			if ($options['scope'] && !preg_match('#' . $options['scope'] . '#', Debugger::trimPath($trace['file']))) {
 				continue;
 			}
 			if ($options['format'] == 'points' && $trace['file'] != '[internal]') {
