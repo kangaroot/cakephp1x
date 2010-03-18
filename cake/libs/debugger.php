@@ -335,7 +335,8 @@ class Debugger extends Object {
 			'start'   => 0,
 			'scope'   => null,
 			'exclude' => null,
-			'delimiter' => "\n"
+			'delimiter' => "\n",
+			'reverse' => false
 		);
 		$options += $defaults;
 
@@ -394,10 +395,13 @@ class Debugger extends Object {
 			}
 		}
 
-		if ($options['format'] == 'array' || $options['format'] == 'points') {
-			return $back;
+		if ($options['reverse']) {
+			$back = array_reverse($back);
 		}
-		return implode($options['delimiter'], $back);
+		if ($options['format'] != 'array' && $options['format'] != 'points') {
+			$back = implode($options['delimiter'], $back);
+		}
+		return $back;
 	}
 
 /**
