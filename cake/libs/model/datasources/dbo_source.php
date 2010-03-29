@@ -2336,7 +2336,7 @@ class DboSource extends DataSource {
 	}
 
 /**
- * Auxiliary function to qoute matches `Model.fields` from a preg_replace_callback call
+ * Auxiliary function to quote matches `Model.fields` from a preg_replace_callback call
  *
  * @param string matched string
  * @return string quoted strig
