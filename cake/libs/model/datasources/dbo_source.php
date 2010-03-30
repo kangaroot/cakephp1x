@@ -387,7 +387,6 @@ class DboSource extends DataSource {
  *
  * @param string $sql SQL statement
  * @param boolean $cache Enables returning/storing cached query results
- * @param string $modelName modelName to use as key values in result array
  * @return array Array of resultset rows, or false if no rows matched
  * @access public
  */
@@ -403,19 +402,11 @@ class DboSource extends DataSource {
 
 			$first = $this->fetchRow();
 			if ($first != null) {
-				if ($modelName) {
-					$out[][$modelName] = array_pop($first);
-				} else {
-					$out[] = $first;
-				}
+				$out[] = $first;
 			}
 			while ($this->hasResult() && $item = $this->fetchResult()) {
 				$this->fetchVirtualField($item);
-				if ($modelName) {
-					$out[][$modelName] = array_pop($item);
-				} else {
-					$out[] = $item;
-				}
+				$out[] = $item;
 			}
 
 			if ($cache) {
