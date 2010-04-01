@@ -107,6 +107,7 @@ class Contact extends CakeTestModel {
 		'imrequired' => array('rule' => array('between', 5, 30), 'allowEmpty' => false),
 		'imalsorequired' => array('rule' => 'alphaNumeric', 'allowEmpty' => false),
 		'imrequiredtoo' => array('rule' => 'notEmpty'),
+		'requiredsimple' => 'notEmpty',
 		'required_one' => array('required' => array('rule' => array('notEmpty'))),
 		'imnotrequired' => array('required' => false, 'rule' => 'alphaNumeric', 'allowEmpty' => true),
 		'imalsonotrequired' => array('alpha' => array('rule' => 'alphaNumeric','allowEmpty' => true),
@@ -5469,6 +5470,20 @@ class FormHelperTest extends CakeTestCase {
 			'input' => array(
 				'type' => 'text', 'name' => 'data[Contact][imrequiredtoo]',
 				'id' => 'ContactImrequiredtoo'
+			),
+			'/div'
+		);
+		$this->assertTags($result, $expected);
+
+		$result = $this->Form->input('Contact.requiredsimple');
+		$expected = array(
+			'div' => array('class' => 'input text required'),
+			'label' => array('for' => 'ContactRequiredsimple'),
+			'Requiredsimple',
+			'/label',
+			'input' => array(
+				'type' => 'text', 'name' => 'data[Contact][requiredsimple]',
+				'id' => 'ContactRequiredsimple'
 			),
 			'/div'
 		);
