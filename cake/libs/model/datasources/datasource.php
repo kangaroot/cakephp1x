@@ -314,6 +314,17 @@ class DataSource extends Object {
 		return $this->_transactionStarted;
 	}
 
+
+/**
+ * Check if a transaction is running
+ *
+ * @return boolean Returns true if a transaction is in progress
+ * @access public
+ */
+	function transactionStarted(&$model) {
+		return $this->_transactionStarted;
+	}
+
 /**
  * Converts column types to basic types
  *
