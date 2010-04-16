@@ -375,6 +375,7 @@ class DboPostgresTest extends CakeTestCase {
 		$this->assertEqual($this->db2->value(1, 'boolean'), 'TRUE');
 		$this->assertEqual($this->db2->value('1', 'boolean'), 'TRUE');
 		$this->assertEqual($this->db2->value(null, 'boolean'), "NULL");
+		$this->assertEqual($this->db2->value(array()), "NULL");
 	}
 
 /**
@@ -566,6 +567,7 @@ class DboPostgresTest extends CakeTestCase {
 		$db1->query('CREATE TABLE ' .  $db1->fullTableName('datatypes') . ' (
 			id serial NOT NULL,
 			"varchar" character varying(40) NOT NULL,
+			"full_length" character varying NOT NULL,
 			"timestamp" timestamp without time zone,
 			date date,
 			CONSTRAINT test_suite_data_types_pkey PRIMARY KEY (id)
@@ -578,7 +580,9 @@ class DboPostgresTest extends CakeTestCase {
 		));
 		$schema->tables = array('datatypes' => $result['tables']['datatypes']);
 		$result = $db1->createSchema($schema, 'datatypes');
+
 		$this->assertNoPattern('/timestamp DEFAULT/', $result);
+		$this->assertPattern('/\"full_length\"\s*text\s.*,/', $result);
 		$this->assertPattern('/timestamp\s*,/', $result);
 
 		$db1->query('DROP TABLE ' . $db1->fullTableName('datatypes'));
@@ -655,7 +659,7 @@ class DboPostgresTest extends CakeTestCase {
 			'alter_posts' => array(
 				'id' => array('type' => 'integer', 'key' => 'primary'),
 				'author_id' => array('type' => 'integer', 'null' => true),
-				'title' => array('type' => 'string', 'null' => false),
+				'title' => array('type' => 'string', 'null' => false, 'default' => 'my title'),
 				'body' => array('type' => 'string', 'length' => 500),
 				'status' => array('type' => 'integer', 'length' => 3, 'default' => 1),
 				'created' => array('type' => 'datetime'),
@@ -793,6 +797,14 @@ class DboPostgresTest extends CakeTestCase {
 		$Article = new Article;
 		$result = $this->db->fields($Article, null, array('COUNT(DISTINCT Article.id)'));
 		$expected = array('COUNT(DISTINCT "Article"."id")');
+		$this->assertEqual($result, $expected);
+
+		$result = $this->db->fields($Article, null, array('COUNT(DISTINCT id)'));
+		$expected = array('COUNT(DISTINCT "id")');
+		$this->assertEqual($result, $expected);
+
+		$result = $this->db->fields($Article, null, array('COUNT(DISTINCT FUNC(id))'));
+		$expected = array('COUNT(DISTINCT FUNC("id"))');
 		$this->assertEqual($result, $expected);
 	}
 }
