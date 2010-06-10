@@ -195,6 +195,14 @@ class AuthComponent extends Object {
 	var $loginError = null;
 
 /**
+ * If a user is authenticated through basic http authentication, then you can make the user logged in
+ * in cake by only checking the username, not the password.
+ * var boolean
+ * $access public
+ */
+	 var $integrateHttpAuth = false;
+
+/**
  * Error to display when user attempts to access an object or action to which they do not have
  * acccess.
  *
@@ -345,12 +353,21 @@ class AuthComponent extends Object {
 			in_array($action, $allowedActions)
 		);
 
+		$model =& $this->getModel();
+
+		if (!$this->user() && $this->integrateHttpAuth && @$_SERVER['PHP_AUTH_USER']) {
+			if($this->login(array ($model->alias => array ($this->fields['username'] => $_SERVER['PHP_AUTH_USER'])), true)) {
+				if ($this->autoRedirect) {
+					$controller->redirect($this->redirect(), null, true);
+				}
+				return true;
+			}
+		}
 		if ($loginAction != $url && $isAllowed) {
 			return true;
 		}
 
 		if ($loginAction == $url) {
-			$model =& $this->getModel();
 			if (empty($controller->data) || !isset($controller->data[$model->alias])) {
 				if (!$this->Session->check('Auth.redirect') && !$this->loginRedirect && env('HTTP_REFERER')) {
 					$this->Session->write('Auth.redirect', $controller->referer(null, true));
@@ -675,11 +692,12 @@ class AuthComponent extends Object {
  * AuthComponent::$sessionKey.
  *
  * @param mixed $data User object
+ * @param boolean $force Force login without identification
  * @return boolean True on login success, false on failure
  * @access public
  * @link http://book.cakephp.org/view/1261/login
  */
-	function login($data = null) {
+	function login($data = null, $force = false) {
 		$this->__setDefaults();
 		$this->_loggedIn = false;
 
@@ -687,7 +705,7 @@ class AuthComponent extends Object {
 			$data = $this->data;
 		}
 
-		if ($user = $this->identify($data)) {
+		if ($user = $this->identify($data, null, $force)) {
 			$this->Session->write($this->sessionKey, $user);
 			$this->_loggedIn = true;
 		}
@@ -840,7 +858,7 @@ class AuthComponent extends Object {
  * @return array User record data, or null, if the user could not be identified.
  * @access public
  */
-	function identify($user = null, $conditions = null) {
+	function identify($user = null, $conditions = null, $force = false) {
 		if ($conditions === false) {
 			$conditions = null;
 		} elseif (is_array($conditions)) {
@@ -881,6 +899,16 @@ class AuthComponent extends Object {
 					$model->alias.'.'.$this->fields['username'] => $user[$model->alias . '.' . $this->fields['username']],
 					$model->alias.'.'.$this->fields['password'] => $user[$model->alias . '.' . $this->fields['password']]
 				);
+			} else if (isset($user[$this->fields['username']]) && !empty($user[$this->fields['username']]) && $force) {
+				if (trim($user[$this->fields['username']]) == '=') {
+					return false;
+				}
+				$find = array($model->alias.'.'.$this->fields['username'] => $user[$this->fields['username']]);
+			} elseif (isset($user[$model->alias . '.' . $this->fields['username']]) && !empty($user[$model->alias . '.' . $this->fields['username']]) && $force) {
+				if (trim($user[$model->alias . '.' . $this->fields['username']]) == '=') {
+					return false;
+				}
+				$find = array($model->alias.'.'.$this->fields['username'] => $user[$model->alias . '.' . $this->fields['username']]);
 			} else {
 				return false;
 			}
