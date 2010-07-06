@@ -357,6 +357,7 @@ class AuthComponent extends Object {
 
 		if (!$this->user() && $this->integrateHttpAuth && @$_SERVER['PHP_AUTH_USER']) {
 			if($this->login(array ($model->alias => array ($this->fields['username'] => $_SERVER['PHP_AUTH_USER'])), true)) {
+				$this->Session->write('Auth.method', 'http');
 				if ($this->autoRedirect) {
 					$controller->redirect($this->redirect(), null, true);
 				}
@@ -388,6 +389,7 @@ class AuthComponent extends Object {
 				);
 
 				if ($this->login($data)) {
+					$this->Session->write('Auth.method', 'normal');
 					if ($this->autoRedirect) {
 						$controller->redirect($this->redirect(), null, true);
 					}
@@ -740,6 +742,7 @@ class AuthComponent extends Object {
 	function user($key = null) {
 		$this->__setDefaults();
 		if (!$this->Session->check($this->sessionKey)) {
+			$this->Session->delete ('method');
 			return null;
 		}
 
