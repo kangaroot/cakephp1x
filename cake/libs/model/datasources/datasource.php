@@ -196,6 +196,15 @@ class DataSource extends Object {
  */
 	var $_transactionStarted = false;
 
+
+/**
+ * If nested transactions, how deep the level currently is
+ *
+ * @var boolean
+ * @access protected
+ */
+	var $_transactionLevel = 0;
+
 /**
  * Whether or not source data like available tables and schema descriptions
  * should be cached
@@ -287,11 +296,11 @@ class DataSource extends Object {
 /**
  * Begin a transaction
  *
- * @return boolean Returns true if a transaction is not in progress
+ * @return boolean Returns true as a transaction can always be started 
  * @access public
  */
 	function begin(&$model) {
-		return !$this->_transactionStarted;
+		return true;
 	}
 
 /**
@@ -605,3 +614,4 @@ class DataSource extends Object {
 		}
 	}
 }
+?>

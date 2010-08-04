@@ -1798,14 +1798,21 @@ class DboSource extends DataSource {
  * @return boolean True on success, false on fail
  * (i.e. if the database/model does not support transactions,
  * or a transaction has not started).
+ * if we're already in a transaction, no need to issue another begin command
  * @access public
  */
 	function begin(&$model) {
-		if (parent::begin($model) && $this->execute($this->_commands['begin'])) {
-			$this->_transactionStarted = true;
-			return true;
+		if (!parent::begin($model)) {
+			return false;
 		}
-		return false;
+		if ($this->_transactionLevel === 0 ) {
+			if (!$this->execute($this->_commands['begin'])) {
+				return false;
+			}
+		}
+		$this->_transactionLevel++;
+		$this->_transactionStarted = true;
+		return true;
 	}
 
 /**
@@ -1818,11 +1825,17 @@ class DboSource extends DataSource {
  * @access public
  */
 	function commit(&$model) {
-		if (parent::commit($model) && $this->execute($this->_commands['commit'])) {
-			$this->_transactionStarted = false;
-			return true;
+		if (!parent::commit($model)) {
+			return false;
 		}
-		return false;
+		if ($this->_transactionLevel === 1 ) {
+			if (!$this->execute($this->_commands['commit'])) {
+				return false;
+			}
+			$this->_transactionStarted = false;
+		}
+		$this->_transactionLevel--;
+		return true;
 	}
 
 /**
@@ -1832,14 +1845,19 @@ class DboSource extends DataSource {
  * @return boolean True on success, false on fail
  * (i.e. if the database/model does not support transactions,
  * or a transaction has not started).
+ * if you're in a nested transaction, this will effectively rollback the entire biggest transaction
  * @access public
  */
 	function rollback(&$model) {
-		if (parent::rollback($model) && $this->execute($this->_commands['rollback'])) {
-			$this->_transactionStarted = false;
-			return true;
+		if (!parent::rollback($model)) {
+			return false;
 		}
-		return false;
+		if (!$this->execute($this->_commands['rollback'])) {
+			return false;
+		}
+		$this->_transactionStarted = false;
+		$this->_transactionLevel = 0;
+		return true;
 	}
 
 /**
@@ -2929,3 +2947,4 @@ class DboSource extends DataSource {
 		return 'string';
 	}
 }
+?>
