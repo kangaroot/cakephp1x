@@ -619,6 +619,8 @@ class DboPostgresTest extends CakeTestCase {
 		$this->assertEqual($expected, $result);
 
 		$this->db->query('DROP TABLE ' . $name);
+		$this->db->query('DROP INDEX pointless_bool'); //not sure if we need this
+		$this->db->query('DROP INDEX char_index');
 		$name = $this->db->fullTableName('index_test_2', false);
 		$this->db->query('CREATE TABLE ' . $name . ' ("id" serial NOT NULL PRIMARY KEY, "bool" integer, "small_char" varchar(50), "description" varchar(40) )');
 		$this->db->query('CREATE UNIQUE INDEX multi_col ON ' . $name . '("small_char", "bool")');
@@ -629,6 +631,7 @@ class DboPostgresTest extends CakeTestCase {
 		$result = $this->db->index($name);
 		$this->assertEqual($expected, $result);
 		$this->db->query('DROP TABLE ' . $name);
+		$this->db->query('DROP INDEX multi_col');
 	}
 
 /**
