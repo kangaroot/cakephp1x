@@ -355,8 +355,8 @@ class AuthComponent extends Object {
 
 		$model =& $this->getModel();
 
-		if (!$this->user() && $this->integrateHttpAuth && !empty($_SERVER['PHP_AUTH_USER'])) {
-			if($this->login(array ($model->alias => array ($this->fields['username'] => $_SERVER['PHP_AUTH_USER'])), true)) {
+		if (!$this->user() && $this->integrateHttpAuth && !empty(env('PHP_AUTH_USER'))) {
+			if($this->login(array ($model->alias => array ($this->fields['username'] => env('PHP_AUTH_USER'))), true)) {
 				$this->Session->write('Auth.method', 'http');
 				if ($this->autoRedirect) {
 					$controller->redirect($this->redirect(), null, true);
